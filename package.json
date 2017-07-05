@@ -1,0 +1,36 @@
+{
+  "name": "yeelight-node",
+  "version": "0.1.0",
+  "description": "Control your yeelight RGB with NodeJs server",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kevinhassan/yeelight-node.git"
+  },
+  "keywords": [
+    "yeelight",
+    "wifi",
+    "nodejs",
+    "weather-api",
+    "home",
+    "automation"
+  ],
+  "author": "Kévin Hassan <kevin.hassan@etu.umontpellier.fr>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kevinhassan/yeelight-node/issues"
+  },
+  "homepage": "https://github.com/kevinhassan/yeelight-node#readme",
+  "devDependencies": {
+    "debug": "^2.6.8",
+    "eslint": "^4.1.1",
+    "nodemon": "^1.11.0"
+  },
+  "dependencies": {
+    "express": "^4.15.3",
+    "morgan": "^1.8.2"
+  }
+}
