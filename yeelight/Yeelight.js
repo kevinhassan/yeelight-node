@@ -1,18 +1,17 @@
-class Yeelight {
+module.exports = class Yeelight {
     constructor(data) {
-        this._ip = data._ip;
-        this._port = data._port;
-        this._id = data._id;
-        this._power = data._power;
-        this._bright = data._bright;
-        this._colorMode = data._colorMode;
-        this._ct = data._ct;
-        this._rgb = data._rgb;
-        this._hue = data._hue;
-        this._sat = data._sat;
-        this._name = data._name;
+        this._ip = data.ip;
+        this._port = data.port;
+        this._id = data.id;
+        this._power = data.power;
+        this._bright = data.bright;
+        this._colorMode = data.colorMode;
+        this._ct = data.ct;
+        this._rgb = data.rgb;
+        this._hue = data.hue;
+        this._sat = data.sat;
+        this._name = data.name;
     }
-
     get ip() {
         return this._ip;
     }
@@ -100,5 +99,5 @@ class Yeelight {
     set name(value) {
         this._name = value;
     }
-}
+};
 
