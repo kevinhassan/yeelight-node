@@ -15,8 +15,39 @@ client.on('listening', function () {
     console.log('UDP Server listening on ' + address.address + ':' + address.port);
 });
 client.on('message', function (message, remote) {
+
     console.log(remote.address + ':' + remote.port +' - ' + message);
-    message = message.toString().split('\r\n'); // convert buffer to string and split it with \n character
-    console.log(message);
+    extract_data(message);
     client.close();
 });
+
+function extract_data(data){
+    let params = {
+        ip:'',
+        port:'',
+        id:'',
+        power:'',
+        bright:'',
+        colorMode:'',
+        ct:'',
+        rgb:'',
+        hue:'',
+        sat:'',
+        name:''
+    };
+    data = data.toString().split('\r\n'); // convert buffer to string and split it with \n character
+    // param.ip = data
+    let address = data[4].split('//')[1].split(':');
+    params.ip = address[0];
+    params.port = address[1];
+    params.id = data[6].split(' ')[1];
+    params.power = data[10].split(' ')[1];
+    params.bright = data[11].split(' ')[1];
+    params.colorMode = data[12].split(' ')[1];
+    params.ct = data[13].split(' ')[1];
+    params.rgb = data[14].split(' ')[1];
+    params.hue = data[15].split(' ')[1];
+    params.sat = data[16].split(' ')[1];
+    params.name = data[17].split(' ')[1];
+    return params;
+}
