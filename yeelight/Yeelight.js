@@ -1,3 +1,6 @@
+let tcp = require('net');
+let socket = new tcp.Socket();
+
 module.exports = class Yeelight {
     constructor(data) {
         this._ip = data.ip;
@@ -98,6 +101,20 @@ module.exports = class Yeelight {
 
     set name(value) {
         this._name = value;
+    }
+    send_data(data){
+        socket.connect(this.port,this.ip, (err) => {
+            if(err) return Promise.reject(err);
+            socket.write(data);
+        });
+    }
+    toggle(){
+        let msg= {
+            id: 1,
+            method: 'toggle',
+            params: ''
+        };
+        this.send_data(JSON.stringify(msg)+'\r\n');
     }
 };
 
