@@ -1,5 +1,5 @@
 let tcp = require('net');
-const TIMEOUT = 3;
+const TIMEOUT = 3600;
 
 module.exports = class Yeelight {
     constructor(data) {
@@ -125,7 +125,6 @@ module.exports = class Yeelight {
             });
             socket.on('data',(msg) =>{ // First message to confirm command works or not
                 msg = JSON.parse(msg);
-                console.log(msg);
                 if(msg.error !== undefined){
                     reject('invalid command');
                     socket.end();
@@ -133,8 +132,8 @@ module.exports = class Yeelight {
                 else{
                     socket.setTimeout(TIMEOUT);
                     socket.on('data', (msg)=>{ // Second message to update property changement
-                        socket.end();
                         resolve(JSON.parse(msg));
+                        socket.end();
                     });
                 }
             });
@@ -201,15 +200,6 @@ module.exports = class Yeelight {
                 });
         });
     }
-    // Method: set_rgb
-    // Usage: This method is used to change the color of a smart LED.
-    // Parameters: 3.
-    // "rgb_value" is the target color, whose type is integer. It should be
-    // expressed in decimal integer ranges from 0 to 16777215 (hex: 0xFFFFFF).
-    // "effect": Refer to "set_ct_abx" method.
-    // "duration": Refer to "set_ct_abx" method.
-    // Request Example: {"id":1,"method":"set_rgb","params":[255, "smooth", 500]}
-    // Response Example: {"id":1, "result":["ok"]}
     /**
      * Method: set_rgb
      * Usage: This method is used to change the color of a smart LED.
@@ -244,6 +234,22 @@ module.exports = class Yeelight {
         });
     }
 
+    /**
+     * Method: set_hsv
+     * Usage: This method is used to change the color of a smart LED.
+     * Parameters: 4.
+     * "hue" is the target hue value, whose type is integer. It should be
+     * expressed in decimal integer ranges from 0 to 359.
+     * "sat" is the target saturation value whose type is integer. It's range is 0
+     to 100.
+     * "effect": Refer to "set_ct_abx" method.
+
+     * "duration": Refer to "set_ct_abx" method.
+     * Request Example: {"id":1,"method":"set_hsv","params":[255, 45, "smooth", 500]}
+     * Response Example: {"id":1, "result":["ok"]}
+     * @param params
+     * @returns {Promise}
+     */
     set_hsv(params){
         let msg = {
             id: 1,
@@ -252,8 +258,9 @@ module.exports = class Yeelight {
         };
         return new Promise((resolve)=>{
             this.send_data(JSON.stringify(msg)+'\r\n',this)
-                .then((updated_msg)=>{
-                    console.log(updated_msg);
+                .then(()=>{
+                    this.hue = msg.params[0];
+                    this.sat = msg.params[1];
                     resolve(this);
                 })
                 .catch((err)=>{
