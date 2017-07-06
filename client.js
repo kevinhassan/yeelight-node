@@ -4,6 +4,8 @@
  * When builb read this string it send data about its state
  * TODO: Allow the possibility to discover multiple connected bulb
  */
+let Yeelight = require('./yeelight/Yeelight');
+
 function discover(){
     let udp = require('dgram');
     const PORT = 1982;
@@ -12,7 +14,7 @@ function discover(){
     let data = {};
     let client = udp.createSocket('udp4');
     let timer;
-    let timeout = 3600;
+    const TIMEOUT = 3600;
 
     return new Promise((resolve, reject) => {
         client.send(msg, 0, msg.length, PORT, HOST, (err)=>{
@@ -27,7 +29,7 @@ function discover(){
         timer = setTimeout(function() {
             reject('no response');
             client.close();
-        }, timeout);
+        }, TIMEOUT);
     });
 }
 /**
@@ -65,7 +67,8 @@ function parse(data){
     return params;
 }
 discover().then((data) => {
-    console.log(data);
+    let yeelight = new Yeelight(data);
+    yeelight.toggle();
 }).catch( error => {
     switch(error){
     case 'send error':

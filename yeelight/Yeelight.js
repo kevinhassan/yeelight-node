@@ -1,5 +1,6 @@
 let tcp = require('net');
 let socket = new tcp.Socket();
+const TIMEOUT = 3600;
 
 module.exports = class Yeelight {
     constructor(data) {
@@ -103,18 +104,58 @@ module.exports = class Yeelight {
         this._name = value;
     }
     send_data(data){
-        socket.connect(this.port,this.ip, (err) => {
-            if(err) return Promise.reject(err);
-            socket.write(data);
+        return new Promise((resolve, reject) => {
+            socket.connect(this.port,this.ip, (err) => {
+                if(err) return reject('connection error');
+                socket.write(data, (err) => {
+                    if(err) return reject('send error');
+                });
+            });
+            socket.setTimeout(TIMEOUT);
+            socket.on('data',(msg) =>{ // First message to confirm command works or not
+                msg = JSON.parse(msg);
+                if(msg.result !== undefined){
+                    isOk(msg)
+                        .then(()=> {
+                            socket.on('data', (msg)=>{ // Second message to update property changement
+                                socket.end();
+                                return resolve(JSON.parse(msg));
+                            });
+                        })
+                        .catch(()=> {
+                            return reject('no changement');
+                        });
+                }
+            });
+            socket.on('timeout',()=>{
+                reject('no reponse');
+                socket.end();
+            });
+            socket.on('end',()=>{
+                socket.destroy();
+            });
         });
     }
     toggle(){
-        let msg= {
+        let msg = {
             id: 1,
             method: 'toggle',
             params: ''
         };
-        this.send_data(JSON.stringify(msg)+'\r\n');
+        return new Promise((resolve)=>{
+            this.send_data(JSON.stringify(msg)+'\r\n',this)
+                .then((updated_msg)=>{
+                    this.power = updated_msg.params.power; // Change properties power
+                    resolve(this);
+                })
+                .catch((err)=>{
+                    console.error(err);
+                });
+        });
     }
 };
+
+function isOk(msg){
+    return msg.result.toString() === 'ok'? Promise.resolve(): Promise.reject();
+}
 
