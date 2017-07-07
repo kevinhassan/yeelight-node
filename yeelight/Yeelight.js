@@ -299,5 +299,37 @@ module.exports = class Yeelight {
                 });
         });
     }
+
+    /**
+     * ---------------------------------------------------------------------------------------------------------------------
+     * Method: set_power
+     * Usage: This method is used to switch on or off the smart LED (software
+     * managed on/off).
+     * Parameters: 3.
+     * "power" can only be "on" or "off". "on" means turn on the smart LED,
+     * "off" means turn off the smart LED.
+     * "effect": Refer to "set_ct_abx" method.
+     * "duration": Refer to "set_ct_abx" method.
+     * Request Example: {"id":1,"method":"set_power","params":["on", "smooth", 500]}
+     * @param params
+     * @returns {Promise}
+     */
+    set_power(params){
+        let msg = {
+            id: 1,
+            method: 'set_power',
+            params: params
+        };
+        return new Promise((resolve)=>{
+            this.send_data(JSON.stringify(msg)+'\r\n')
+                .then((updated_message)=>{
+                    this.power = updated_message.params.power;
+                    resolve(this);
+                })
+                .catch((err)=>{
+                    console.error(err);
+                });
+        });
+    }
 };
 
