@@ -162,7 +162,7 @@ module.exports = class Yeelight {
             params: ''
         };
         return new Promise((resolve)=>{
-            this.send_data(JSON.stringify(msg)+'\r\n',this)
+            this.send_data(JSON.stringify(msg)+'\r\n')
                 .then((updated_msg)=>{
                     this.power = updated_msg.params.power; // Change properties power
                     resolve(this);
@@ -190,9 +190,9 @@ module.exports = class Yeelight {
             params: params
         };
         return new Promise((resolve)=>{
-            this.send_data(JSON.stringify(msg)+'\r\n',this)
-                .then((updated_msg)=>{
-                    this.ct = updated_msg.params.ct; // Change properties color temperature
+            this.send_data(JSON.stringify(msg)+'\r\n')
+                .then(()=>{
+                    this.ct = msg.params[0]; // Change properties color temperature
                     resolve(this);
                 })
                 .catch((err)=>{
@@ -223,9 +223,9 @@ module.exports = class Yeelight {
         params[0] = (params[0][0]*65536) + (params[0][1]*256) + params[0][2];
         msg.params = params;
         return new Promise((resolve)=>{
-            this.send_data(JSON.stringify(msg)+'\r\n',this)
-                .then((updated_msg)=>{
-                    this.rgb = updated_msg.params.rgb; // Change properties color
+            this.send_data(JSON.stringify(msg)+'\r\n')
+                .then(()=>{
+                    this.rgb = msg.params[0]; // Change properties color
                     resolve(this);
                 })
                 .catch((err)=>{
@@ -257,10 +257,41 @@ module.exports = class Yeelight {
             params: params
         };
         return new Promise((resolve)=>{
-            this.send_data(JSON.stringify(msg)+'\r\n',this)
+            this.send_data(JSON.stringify(msg)+'\r\n')
                 .then(()=>{
                     this.hue = msg.params[0];
                     this.sat = msg.params[1];
+                    resolve(this);
+                })
+                .catch((err)=>{
+                    console.error(err);
+                });
+        });
+    }
+
+    /**
+     * Method: set_bright
+     * Usage: This method is used to change the brightness of a smart LED.
+     * Parameters: 3.
+     * "brightness" is the target brightness. The type is integer and ranges
+     * from 1 to 100. The brightness is a percentage instead of a absolute value. 100 means
+     * maximum brightness while 1 means the minimum brightness.
+     * "effect": Refer to "set_ct_abx" method.
+     * "duration": Refer to "set_ct_abx" method.
+     * Request Example: {"id":1,"method":"set_bright","params":[50, "smooth", 500]}
+     * @param params
+     * @returns {Promise}
+     */
+    set_bright(params){
+        let msg = {
+            id: 1,
+            method: 'set_bright',
+            params: params
+        };
+        return new Promise((resolve)=>{
+            this.send_data(JSON.stringify(msg)+'\r\n')
+                .then(()=>{
+                    this.bright = msg.params[0];
                     resolve(this);
                 })
                 .catch((err)=>{
