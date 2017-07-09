@@ -68,7 +68,7 @@ function parse(data){
 }
 discover().then((data) => {
     let yeelight = new Yeelight(data);
-    yeelight.toggle();
+
 }).catch( error => {
     switch(error){
     case 'send error':
