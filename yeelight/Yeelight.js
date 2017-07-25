@@ -13,6 +13,7 @@ module.exports = class Yeelight {
         this._hue = data.hue;
         this._sat = data.sat;
         this._name = data.name;
+        this._nbRequest = 0;
     }
     get ip() {
         return this._ip;
@@ -101,13 +102,20 @@ module.exports = class Yeelight {
     set name(value) {
         this._name = value;
     }
+    get nbRequest() {
+        return this._nbRequest;
+    }
 
+    set nbRequest(value) {
+        this._nbRequest = value;
+    }
     /**
      * Send data with tcp socket to bulb for execute functions
      * @param data
      * @returns {Promise}
      */
     send_data(data){
+        console.log(data);
         data = JSON.stringify(data)+'\r\n';
         return new Promise((resolve, reject) => {
             let socket = new tcp.Socket();
@@ -130,6 +138,7 @@ module.exports = class Yeelight {
                     socket.end();
                 }
                 else{
+                    if(this.nbRequest>0) this.nbRequest -= 1;
                     resolve(msg);
                     socket.end();
                 }
@@ -154,10 +163,11 @@ module.exports = class Yeelight {
      */
     get_prop(...properties){
         let msg = {
-            id: 1,
+            id: this.nbRequest+1,
             method: 'get_prop',
             params: properties
         };
+        this.nbRequest = msg.id;
         return new Promise((resolve)=>{
             this.send_data(msg)
                 .then((properties_value)=>{
@@ -184,10 +194,11 @@ module.exports = class Yeelight {
      */
     toggle(){
         let msg = {
-            id: 1,
+            id: this.nbRequest+1,
             method: 'toggle',
             params: ''
         };
+        this.nbRequest = msg.id;
         return new Promise((resolve)=>{
             this.send_data(msg)
                 .then(()=>{
@@ -212,10 +223,11 @@ module.exports = class Yeelight {
      */
     set_ct_abx(...params){
         let msg = {
-            id: 1,
+            id: this.nbRequest+1,
             method: 'set_ct_abx',
             params: params
         };
+        this.nbRequest = msg.id;
         return new Promise((resolve)=>{
             this.send_data(msg)
                 .then(()=>{
@@ -242,10 +254,11 @@ module.exports = class Yeelight {
      */
     set_rgb(...params){
         let msg = {
-            id: 1,
+            id: this.nbRequest+1,
             method: 'set_rgb',
             params: ''
         };
+        this.nbRequest = msg.id;
         //RGB conversion : RGB = (R*65536) + (G*256) + B
         params[2] = (params[0]*65536) + (params[1]*256) + params[2];
         msg.params = params.slice(2);
@@ -279,10 +292,11 @@ module.exports = class Yeelight {
      */
     set_hsv(...params){
         let msg = {
-            id: 1,
+            id: this.nbRequest+1,
             method: 'set_hsv',
             params: params
         };
+        this.nbRequest = msg.id;
         return new Promise((resolve)=>{
             this.send_data(msg)
                 .then(()=>{
@@ -311,10 +325,11 @@ module.exports = class Yeelight {
      */
     set_bright(...params){
         let msg = {
-            id: 1,
+            id: this.nbRequest+1,
             method: 'set_bright',
             params: params
         };
+        this.nbRequest = msg.id;
         return new Promise((resolve)=>{
             this.send_data(msg)
                 .then(()=>{
@@ -343,10 +358,11 @@ module.exports = class Yeelight {
      */
     set_power(...params){
         let msg = {
-            id: 1,
+            id: this.nbRequest+1,
             method: 'set_power',
             params: params
         };
+        this.nbRequest = msg.id;
         return new Promise((resolve)=>{
             this.send_data(msg)
                 .then(()=>{
@@ -371,10 +387,11 @@ module.exports = class Yeelight {
      */
     set_default(){
         let msg = {
-            id: 1,
+            id: this.nbRequest+1,
             method: 'set_default',
             params: []
         };
+        this.nbRequest = msg.id;
         return new Promise((resolve)=>{
             this.send_data(msg)
                 .then(()=>{
@@ -405,10 +422,11 @@ module.exports = class Yeelight {
      */
     set_adjust(...params){
         let msg = {
-            id: 1,
+            id: this.nbRequest+1,
             method: 'set_adjust',
             params: params
         };
+        this.nbRequest = msg.id;
         return new Promise((resolve)=>{
             this.send_data(msg)
                 .then(()=>{
@@ -434,10 +452,11 @@ module.exports = class Yeelight {
      */
     set_name(...name){
         let msg = {
-            id: 1,
+            id: this.nbRequest+1,
             method: 'set_name',
             params: name
         };
+        this.nbRequest = msg.id;
         return new Promise((resolve)=>{
             this.send_data(msg)
                 .then(()=>{
@@ -462,10 +481,11 @@ module.exports = class Yeelight {
      */
     cron_add(...params){
         let msg = {
-            id: 1,
+            id: this.nbRequest+1,
             method: 'cron_add',
             params: params
         };
+        this.nbRequest = msg.id;
         return new Promise((resolve)=>{
             this.send_data(msg)
                 .then(()=>{
@@ -490,10 +510,11 @@ module.exports = class Yeelight {
      */
     cron_get(...params){
         let msg = {
-            id: 1,
+            id: this.nbRequest+1,
             method: 'cron_get',
             params: params
         };
+        this.nbRequest = msg.id;
         return new Promise((resolve)=>{
             this.send_data(msg)
                 .then((cron)=>{
@@ -516,10 +537,11 @@ module.exports = class Yeelight {
      */
     cron_del(...params){
         let msg = {
-            id: 1,
+            id: this.nbRequest+1,
             method: 'cron_del',
             params: params
         };
+        this.nbRequest = msg.id;
         return new Promise((resolve)=>{
             this.send_data(msg)
                 .then(()=>{
@@ -531,4 +553,3 @@ module.exports = class Yeelight {
         });
     }
 };
-
