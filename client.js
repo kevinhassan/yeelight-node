@@ -5,6 +5,7 @@
  * TODO: Allow the possibility to discover multiple connected bulb
  */
 let Yeelight = require('./yeelight/Yeelight');
+let yeelights = [];
 
 function discover(){
     let udp = require('dgram');
@@ -24,7 +25,8 @@ function discover(){
             clearTimeout(timer);
             client.close();
             data = parse(msg);
-            resolve(data);
+            yeelights.push(new Yeelight(data));
+            resolve();
         });
         timer = setTimeout(function() {
             reject('no response');
@@ -52,22 +54,25 @@ function parse(data){
         name:''
     };
     data = data.toString().split('\r\n'); // convert buffer to string and split it with \n character
-    let address = data[4].split('//')[1].split(':');
+    data = data.splice(4);
+    let address = data.shift().split('//')[1].split(':');
     params.ip = address[0];
     params.port = address[1];
-    params.id = data[6].split(' ')[1];
-    params.power = data[10].split(' ')[1];
-    params.bright = data[11].split(' ')[1];
-    params.colorMode = data[12].split(' ')[1];
-    params.ct = data[13].split(' ')[1];
-    params.rgb = data[14].split(' ')[1];
-    params.hue = data[15].split(' ')[1];
-    params.sat = data[16].split(' ')[1];
-    params.name = data[17].split(' ')[1];
+    data = data.splice(1);
+    params.id = data.shift().split(' ')[1];
+    data = data.splice(3);
+    params.power = data.shift().split(' ')[1];
+    params.bright = data.shift().split(' ')[1];
+    params.colorMode = data.shift().split(' ')[1];
+    params.ct = data.shift().split(' ')[1];
+    params.rgb = data.shift().split(' ')[1];
+    params.hue = data.shift().split(' ')[1];
+    params.sat = data.shift().split(' ')[1];
+    params.name = data.shift().split(' ')[1];
     return params;
 }
-discover().then((data) => {
-    let yeelight = new Yeelight(data);
+discover().then(() => {
+
 }).catch( error => {
     switch(error){
     case 'send error':
