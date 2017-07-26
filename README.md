@@ -6,6 +6,7 @@
 
 - [Fonctionnalites](#fonctionnalites)
   - [Instructions](#instructions)
+- [Technologies](#technologies)
 - [Liens externes](#liens-externes)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -33,6 +34,12 @@
 * Puis 'Developer Mode'
 * Activer 'Developer Mode'
 * Valider 
+
+# Technologies
+
+* Serveur NodeJS API (sur le même réseau que l'ampoule)
+* Base de donnée MongoDB et Mongoose 
+* Framework JS ReactJS ou AngularJS ou VueJS
 
 # Liens externes
 
