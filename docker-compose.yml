@@ -1,0 +1,8 @@
+db:
+  image: mongo:latest
+  ports:
+    - "27017:27017"
+  volumes:
+    - ./mongodb_data:/data/db
+  env_file: .env.docker
+  restart: always
