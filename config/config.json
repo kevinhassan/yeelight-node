@@ -1,0 +1,20 @@
+{
+  "development": {
+    "username": "mongo",
+    "password": "password",
+    "database": "test",
+    "host": "127.0.0.1"
+  },
+  "test": {
+    "username": "root",
+    "password": null,
+    "database": "database_test",
+    "host": "127.0.0.1"
+  },
+  "production": {
+    "username": "user",
+    "password": "password",
+    "database": "database",
+    "host": "host"
+  }
+}
