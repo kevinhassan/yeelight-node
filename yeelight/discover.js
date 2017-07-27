@@ -5,7 +5,7 @@
  */
 
 let discover = function(){
-    let Yeelight = require('./Yeelight');
+    let Yeelight = require('../models/Yeelight');
     let yeelights = [];
     let udp = require('dgram');
     const PORT = 1982;
