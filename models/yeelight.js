@@ -8,18 +8,24 @@ let yeelightSchema = new Schema({
     {
         type: String,
         unique: true,
-        trim: true
+        trim: true,
+        required: true
     },
-    port       : Number,
+    port       : {
+        type: Number,
+        required: true
+    },
     id         :
     {
         type: String,
-        unique: true
+        unique: true,
+        index: true
     },
     power      :
     {
         type: String,
         lowercase: true,
+        required: true,
         validate: {
             validator: function(v){
                 return v === 'on' || v === 'off';
@@ -30,36 +36,42 @@ let yeelightSchema = new Schema({
     bright     :
     {
         type: Number,
+        required: true,
         min: 1,
         max: 100
     },
     colorMode  :
     {
         type: Number,
+        required: true,
         min: 1,
         max: 3
     },
     ct         :
     {
         type: Number,
+        required: true,
         min: 1700,
         max: 6500
     },
     rgb        :
     {
         type: Number,
+        required: true,
         min: 0,
         max: 16777215
     },
     hue        :
     {
         type: Number,
+        required: true,
         min: 0,
         max: 359
     },
     sat        :
     {
         type: Number,
+        required: true,
         min: 0,
         max: 359
     },
