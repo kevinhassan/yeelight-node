@@ -5,16 +5,10 @@ var mongoose = require('mongoose');
 
 if (config === undefined) throw new ReferenceError('config database failed undefined')
 
-var options = {
-    auth:{authdb: 'admin'},
-    db: { native_parser: true },
-    server: { poolSize: 5 },
-    replset: { rs_name: 'myReplicaSetName' },
-    user: config.username,
-    pass: config.password
-}
+var options = { server: { socketOptions: { keepAlive: 300000, connectTimeoutMS: 30000 } },
+replset: { socketOptions: { keepAlive: 300000, connectTimeoutMS : 30000 } } };
 
-mongoose.connect('mongodb://'+config.host+'/'+config.database,options);
+mongoose.connect('mongodb://'+config.host+'/'+config.database, options);
 let db = mongoose.connection;
 
 db.on('error', function (){

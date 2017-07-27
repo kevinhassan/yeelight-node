@@ -2,7 +2,7 @@
   "development": {
     "username": "mongo",
     "password": "password",
-    "database": "test",
+    "database": "node-yeelight",
     "host": "127.0.0.1"
   },
   "test": {
