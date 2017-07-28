@@ -19,7 +19,8 @@ let yeelightSchema = new Schema({
     id         :
     {
         type: String,
-        unique: true
+        unique: true,
+        required: true
     },
     power      :
     {
@@ -80,7 +81,7 @@ let yeelightSchema = new Schema({
         type: String,
         default: ''
     }
-});
+},{ strict: true });
 /**
  * Send data with tcp socket to bulb for execute functions
  * @param data
@@ -526,5 +527,4 @@ yeelightSchema.methods.cron_del = function(...params){
 };
 
 let Yeelight = mongoose.model('Yeelight', yeelightSchema);
-
 module.exports = Yeelight;
