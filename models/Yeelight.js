@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const tcp = require('net');
 
 let Schema = mongoose.Schema;
+let nbRequest = 0;
 
 let yeelightSchema = new Schema({
     ip         :
@@ -110,7 +111,7 @@ yeelightSchema.methods.send_data = function(data){
                 socket.end();
             }
             else{
-                if(this.nbRequest>0) this.nbRequest -= 1;
+                if(nbRequest>0) nbRequest -= 1;
                 resolve(msg);
                 socket.end();
             }
@@ -135,11 +136,11 @@ yeelightSchema.methods.send_data = function(data){
  */
 yeelightSchema.methods.get_prop = function(...properties){
     let msg = {
-        id: this.nbRequest+1,
+        id: nbRequest+1,
         method: 'get_prop',
         params: properties
     };
-    this.nbRequest = msg.id;
+    nbRequest = msg.id;
     return new Promise((resolve)=>{
         this.send_data(msg)
             .then((properties_value)=>{
@@ -166,15 +167,16 @@ yeelightSchema.methods.get_prop = function(...properties){
  */
 yeelightSchema.methods.toggle = function(){
     let msg = {
-        id: this.nbRequest+1,
+        id: nbRequest+1,
         method: 'toggle',
         params: ''
     };
-    this.nbRequest = msg.id;
+    nbRequest = msg.id;
     return new Promise((resolve)=>{
         this.send_data(msg)
             .then(()=>{
                 this.power === 'on'? this.power = 'off': this.power = 'on';
+                this.save();
                 resolve(this);
             })
             .catch((err)=>{
@@ -195,15 +197,16 @@ yeelightSchema.methods.toggle = function(){
  */
 yeelightSchema.methods.set_ct_abx = function(...params){
     let msg = {
-        id: this.nbRequest+1,
+        id: nbRequest+1,
         method: 'set_ct_abx',
         params: params
     };
-    this.nbRequest = msg.id;
+    nbRequest = msg.id;
     return new Promise((resolve)=>{
         this.send_data(msg)
             .then(()=>{
                 this.ct = msg.params[0]; // Change properties color temperature
+                this.save();
                 resolve(this);
             })
             .catch((err)=>{
@@ -227,11 +230,11 @@ yeelightSchema.methods.set_ct_abx = function(...params){
  */
 yeelightSchema.methods.set_rgb = function(...params){
     let msg = {
-        id: this.nbRequest+1,
+        id: nbRequest+1,
         method: 'set_rgb',
         params: ''
     };
-    this.nbRequest = msg.id;
+    nbRequest = msg.id;
     //RGB conversion : RGB = (R*65536) + (G*256) + B
     params[2] = (params[0]*65536) + (params[1]*256) + params[2];
     msg.params = params.slice(2);
@@ -239,6 +242,7 @@ yeelightSchema.methods.set_rgb = function(...params){
         this.send_data(msg)
             .then(()=>{
                 this.rgb = msg.params[0]; // Change properties color
+                this.save();
                 resolve(this);
             })
             .catch((err)=>{
@@ -265,16 +269,17 @@ yeelightSchema.methods.set_rgb = function(...params){
  */
 yeelightSchema.methods.set_hsv = function(...params){
     let msg = {
-        id: this.nbRequest+1,
+        id: nbRequest+1,
         method: 'set_hsv',
         params: params
     };
-    this.nbRequest = msg.id;
+    nbRequest = msg.id;
     return new Promise((resolve)=>{
         this.send_data(msg)
             .then(()=>{
                 this.hue = msg.params[0];
                 this.sat = msg.params[1];
+                this.save();
                 resolve(this);
             })
             .catch((err)=>{
@@ -298,15 +303,16 @@ yeelightSchema.methods.set_hsv = function(...params){
  */
 yeelightSchema.methods.set_bright = function(...params){
     let msg = {
-        id: this.nbRequest+1,
+        id: nbRequest+1,
         method: 'set_bright',
         params: params
     };
-    this.nbRequest = msg.id;
+    nbRequest = msg.id;
     return new Promise((resolve)=>{
         this.send_data(msg)
             .then(()=>{
                 this.bright = msg.params[0];
+                this.save();
                 resolve(this);
             })
             .catch((err)=>{
@@ -331,15 +337,16 @@ yeelightSchema.methods.set_bright = function(...params){
  */
 yeelightSchema.methods.set_power = function(...params){
     let msg = {
-        id: this.nbRequest+1,
+        id: nbRequest+1,
         method: 'set_power',
         params: params
     };
-    this.nbRequest = msg.id;
+    nbRequest = msg.id;
     return new Promise((resolve)=>{
         this.send_data(msg)
             .then(()=>{
                 this.power = msg.params[0];
+                this.save();
                 resolve(this);
             })
             .catch((err)=>{
@@ -360,11 +367,11 @@ yeelightSchema.methods.set_power = function(...params){
  */
 yeelightSchema.methods.set_default = function(){
     let msg = {
-        id: this.nbRequest+1,
+        id: nbRequest+1,
         method: 'set_default',
         params: []
     };
-    this.nbRequest = msg.id;
+    nbRequest = msg.id;
     return new Promise((resolve)=>{
         this.send_data(msg)
             .then(()=>{
@@ -395,11 +402,11 @@ yeelightSchema.methods.set_default = function(){
  */
 yeelightSchema.methods.set_adjust = function(...params){
     let msg = {
-        id: this.nbRequest+1,
+        id: nbRequest+1,
         method: 'set_adjust',
         params: params
     };
-    this.nbRequest = msg.id;
+    nbRequest = msg.id;
     return new Promise((resolve)=>{
         this.send_data(msg)
             .then(()=>{
@@ -425,15 +432,16 @@ yeelightSchema.methods.set_adjust = function(...params){
  */
 yeelightSchema.methods.set_name = function(...name){
     let msg = {
-        id: this.nbRequest+1,
+        id: nbRequest+1,
         method: 'set_name',
         params: name
     };
-    this.nbRequest = msg.id;
+    nbRequest = msg.id;
     return new Promise((resolve)=>{
         this.send_data(msg)
             .then(()=>{
                 this.name = msg.params[0];
+                this.save();
                 resolve(this);
             })
             .catch((err)=>{
@@ -454,15 +462,16 @@ yeelightSchema.methods.set_name = function(...name){
  */
 yeelightSchema.methods.cron_add = function(...params){
     let msg = {
-        id: this.nbRequest+1,
+        id: nbRequest+1,
         method: 'cron_add',
         params: params
     };
-    this.nbRequest = msg.id;
+    nbRequest = msg.id;
     return new Promise((resolve)=>{
         this.send_data(msg)
             .then(()=>{
                 this.power = (params[0] === 0)? 'off': 'on'; // A changer après la temporisation
+                this.save();
                 resolve(this);
             })
             .catch((err)=>{
@@ -483,11 +492,11 @@ yeelightSchema.methods.cron_add = function(...params){
  */
 yeelightSchema.methods.cron_get = function(...params){
     let msg = {
-        id: this.nbRequest+1,
+        id: nbRequest+1,
         method: 'cron_get',
         params: params
     };
-    this.nbRequest = msg.id;
+    nbRequest = msg.id;
     return new Promise((resolve)=>{
         this.send_data(msg)
             .then((cron)=>{
@@ -510,11 +519,11 @@ yeelightSchema.methods.cron_get = function(...params){
  */
 yeelightSchema.methods.cron_del = function(...params){
     let msg = {
-        id: this.nbRequest+1,
+        id: nbRequest+1,
         method: 'cron_del',
         params: params
     };
-    this.nbRequest = msg.id;
+    nbRequest = msg.id;
     return new Promise((resolve)=>{
         this.send_data(msg)
             .then(()=>{
