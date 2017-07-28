@@ -4,6 +4,7 @@ const Yeelight = require('../models/Yeelight');
 
 let discover = require('../yeelight/discover');
 
+//Lister toutes les ampoules stockées en base de données
 router.route('/yeelights')
     .get((req,res)=>
     {
@@ -11,43 +12,53 @@ router.route('/yeelights')
             if (err){
                 res.send(err);
             }
-            yeelights.length === 0 ? res.status(404).send({
+            return yeelights.length === 0 ? res.status(404).send({
                 status: 404,
                 message:'No bulb saved'
             }):
                 res.status(200).send({
                     status: 200,
-                    message:'bulbs found',
+                    message:'Fetch bulb successfully',
                     bulbs: yeelights
                 });
         });
     });
 
+//Chercher les yeelights connectées au réseau et les ajouter
+//Supprimer toutes les ampoules précedemment stockées
 router.route('/yeelights/search')
     .get((req,res)=>
     {
         discover().then((yeelights)=>{
             yeelights.map((yeelight)=>{
-                Yeelight.findOne({id: yeelight.id},(err,bulb)=>{
-                    if (!bulb){
-                        //enregistrer l'ampoule en BD
-                        yeelight.save((err)=>{
-                            if(err) return new Error('Cannot save new bulb in db');
-                        });
-                    }else{
-                    //update bulb saved
-
+                // recreate object without _id field
+                let obj ={
+                    $set: {
+                        'ip': yeelight.ip,
+                        'port': yeelight.port,
+                        'power': yeelight.power,
+                        'bright': yeelight.bright,
+                        'colorMode': yeelight.colorMode,
+                        'ct': yeelight.ct,
+                        'rgb': yeelight.rgb,
+                        'hue': yeelight.hue,
+                        'sat': yeelight.sat,
+                        'name': yeelight.name
                     }
+                };
+                // update existant bulb or insert new bulb
+                Yeelight.findOneAndUpdate({id: yeelight.id}, obj, {upsert: true}, (err) => {
+                    if(err) return res.status(500).send({
+                        status: 500,
+                        message:'bulbs cannot be saved'
+                    });
                 });
             });
-            res.status(200).send({
+            return res.status(200).send({
                 status: 200,
-                message:'bulbs stored',
+                message:'bulbs discover are successfully saved',
                 bulbs: yeelights
             });
-            /**
-             Si l'ID est en BD on update ses valeurs
-            **/
         }).catch( error => {
             switch(error){
             case 'send error':
