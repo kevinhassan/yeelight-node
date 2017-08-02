@@ -1,5 +1,4 @@
-const db = require('../database/db');
-const mongoose = require('mongoose');
+const mongoose = require('../database/db');
 const tcp = require('net');
 
 let Schema = mongoose.Schema;
@@ -534,6 +533,5 @@ yeelightSchema.methods.cron_del = function(...params){
             });
     });
 };
-
 let Yeelight = mongoose.model('Yeelight', yeelightSchema);
 module.exports = Yeelight;

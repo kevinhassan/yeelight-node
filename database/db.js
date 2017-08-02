@@ -5,17 +5,19 @@ var mongoose = require('mongoose');
 
 if (config === undefined) throw new ReferenceError('config database failed undefined')
 
-var options = { server: { socketOptions: { keepAlive: 300000, connectTimeoutMS: 30000 } },
-replset: { socketOptions: { keepAlive: 300000, connectTimeoutMS : 30000 } } };
+var options = {
+    useMongoClient: true
+};
 
-mongoose.connect('mongodb://'+config.host+'/'+config.database, options);
-let db = mongoose.connection;
+mongoose.connect('mongodb://'+config.host+'/'+config.database, options)
 
-db.on('error', function (){
-    console.error('Erreur lors de la connexion');
-});
-db.once('open', function (){
-    console.log("Connexion à la base OK");
-});
-
-module.exports = db;
+    .on('error', function (){
+        console.error('Erreur lors de la connexion');
+    })
+    .once('open', function (){
+        console.log("Connexion à la base OK");
+    })
+    .once('close', function (){
+        console.log("Déconnection");
+    });
+module.exports = mongoose;

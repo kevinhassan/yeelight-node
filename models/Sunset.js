@@ -1,5 +1,4 @@
-const db = require('../database/db');
-const mongoose = require('mongoose');
+const mongoose = require('../database/db');
 
 let Schema = mongoose.Schema;
 
@@ -11,4 +10,5 @@ let sunsetSchema = new Schema({
     }
 });
 
-module.exports = mongoose.model('Date', sunsetSchema);
+let Sunset = mongoose.model('Sunset', sunsetSchema);
+module.exports = Sunset;

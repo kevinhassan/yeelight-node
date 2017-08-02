@@ -4,9 +4,10 @@ const logger  = require('morgan');
 let schedule = require('node-schedule');
 
 let request = require('request');
-let ville = 'Aubagne'; // récupérer l'adresse ip et extraire la ville
+let ville = 'Aubagne'; // TODO: récupérer l'adresse ip et extraire la ville
 let weatherApi = 'http://api.openweathermap.org/data/2.5/weather';
 let apiKey = 'd0c96820636fedb6a4d8f08144cad566';
+let Sunset = require('./models/Sunset');
 
 const app = express();
 require('dotenv').config();
@@ -19,9 +20,39 @@ app.use(bodyParser.json());
 //every day at 00:00:00
 let rule = {hour: 0, minute: 0, second: 0};
 
-//get weather api info
-schedule.scheduleJob(rule, function(){
+/**
+*   First check on the DB if sunset date exist:
+*   - yes :   * add cron task to switch on bulb at this time
+*
+*   - no  :   * fetch with weather api the sunset time
+*             * add to DB
+*             * add cron task
+*
+*   -> add schedule job for 0am to fetch automatically
+**/
 
+//TODO: catch errors
+Sunset.findOne({'date': {$gte: new Date()}}, (err, result)=>{
+    // sunset time is stored in DB
+    if(result){
+        //Add cron task to switch on
+    }else{
+        getSunset().then((sunset)=>{
+            //add sunset time to DB
+            new Sunset({date: sunset}).save((err)=>{
+                if(err) console.error(err);
+            });
+        });
+    }
+    //add schedule job for 0am to fetch automatically
+    schedule.scheduleJob(rule, function(){
+        getSunset().then((sunset)=>{
+            //add sunset time to DB
+            new Sunset({date: sunset}).save((err)=>{
+                if(err) console.error(err);
+            });
+        });
+    });
 });
 
 function getSunset(){
