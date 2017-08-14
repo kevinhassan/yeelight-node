@@ -4,26 +4,26 @@ const Yeelight = require('../models/Yeelight');
 
 let discover = require('../yeelight/discover');
 
-//Lister toutes les ampoules stockées en base de données
+// Fetch all bulbs stored on DB
 router.route('/yeelights')
     .get((req, res)=>
     {
-        Yeelight.find((err, yeelights)=>{
+        Yeelight.find((err, bulbs)=>{
             if (err){
                 res.send(err);
             }
-            return yeelights.length === 0 ? res.status(404).send({
-                status: 404,
-                message:'No bulb saved'
-            }):
+            return bulbs.length === 0 ?
+                res.status(404).send({
+                    status: 404,
+                    message:'No bulb saved'
+                }):
                 res.status(200).send({
                     status: 200,
-                    message:'Fetch bulb successfully',
-                    bulbs: yeelights
+                    message:'Fetch bulbs successfully',
+                    bulbs: bulbs
                 });
         });
     });
-
 //Chercher les yeelights connectées au réseau et les ajouter
 //Supprimer toutes les ampoules précedemment stockées
 router.route('/yeelights/search')
@@ -77,6 +77,39 @@ router.route('/yeelights/search')
         });
     });
 
+// Get bulbs
+router.route('/yeelights/:id')
+    .get((req, res)=>
+    {
+        Yeelight.findOne({id: req.params.id},(err, bulb)=>{
+            if (err){
+                res.status(500).send(err);
+            }
+            return (!bulb || bulb.length === 0) ? res.status(404).send({
+                status: 404,
+                message: 'Bulb not referenced on DB try to search on network'
+            }):
+                res.status(200).send({
+                    status: 200,
+                    message:'Fetch bulb successfully',
+                    bulb: bulb
+                });
+        });
+    })
+    .delete((req, res)=>{
+        Yeelight.remove({id: req.params.id},(err)=>{
+            if (err){
+                return res.status(500).send(err);
+            }
+            else{
+                return res.status(200).send({
+                    status: 200,
+                    message:'Bulb successfully removed',
+                });
+            }
+        });
+    });
+
 router.route('/yeelights/:id/toggle')
     .get((req, res)=>
     {
@@ -93,7 +126,8 @@ router.route('/yeelights/:id/toggle')
             });
         });
     });
-//envoie des couleurs au format RGB {r:,g:,b:}
+//envoie des couleurs au format RGB {red:,green:,blue:}
+//pre: req.body.color is an array min : [0,0,0] and max: [255,255,255]
 router.route('/yeelights/:id/rgb')
     .post((req, res)=>
     {
@@ -102,7 +136,29 @@ router.route('/yeelights/:id/rgb')
                 status: 404,
                 message: 'Bulb not referenced on DB try to search on network'
             });
-            // envoyer les couleurs à la fonction set_rgb
+            var color = req.body.color;
+            if(color && color.hasOwnProperty('red') && color.hasOwnProperty('green') && color.hasOwnProperty('blue') && (color.red <= 255 && color.red >=0) && (color.green <= 255 && color.green >=0) && (color.blue <= 255 && color.blue >=0)){
+                bulb.set_power('on', 'smooth', 30).then(()=>{
+                    return bulb.set_rgb(req.body.color,'smooth',1000).then(()=>{
+                        return res.status(200).send({
+                            status: 200,
+                            message: 'Bulb\'s color successfully change'
+                        });
+                    }).catch((err)=>{
+                        return err;
+                    });
+                }).catch((err)=>{
+                    return res.status(500).send({
+                        status: 500,
+                        message: 'Internal error: cannot change bulb\'s color'
+                    });
+                })
+            }else{
+                return res.status(400).send({
+                    status: 400,
+                    message: 'Bad color\'s values'
+                });
+            }
         });
     });
 

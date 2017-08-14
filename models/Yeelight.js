@@ -131,7 +131,7 @@ yeelightSchema.methods.send_data = function(data){
  * Request Example: {"id":1,"method":"get_prop","params":["power", "not_exist", "bright"]}
  * Response Example: {"id":1, "result":["on", "", "100"]}
  * @param properties
- * @returns {Promise}
+ * @returns {Promise} with params asked updated
  */
 yeelightSchema.methods.get_prop = function(...properties){
     let msg = {
@@ -224,7 +224,7 @@ yeelightSchema.methods.set_ct_abx = function(...params){
  * "duration": Refer to "set_ct_abx" method.
  * Request Example: {"id":1,"method":"set_rgb","params":[255, "smooth", 500]}
  * Response Example: {"id":1, "result":["ok"]}
- * @param params
+ * @param params ({red:,green:,blue:},mode,duration)
  * @returns {Promise}
  */
 yeelightSchema.methods.set_rgb = function(...params){
@@ -235,8 +235,9 @@ yeelightSchema.methods.set_rgb = function(...params){
     };
     nbRequest = msg.id;
     //RGB conversion : RGB = (R*65536) + (G*256) + B
-    params[2] = (params[0]*65536) + (params[1]*256) + params[2];
-    msg.params = params.slice(2);
+    let color = (params[0].red*65536) + (params[0].green*256) + params[0].blue;
+    params[0] = color;
+    msg.params = params;
     return new Promise((resolve)=>{
         this.send_data(msg)
             .then(()=>{
