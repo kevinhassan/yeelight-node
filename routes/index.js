@@ -162,4 +162,38 @@ router.route('/yeelights/:id/rgb')
         });
     });
 
+router.route('/yeelights/:id/bright')
+    .post((req, res)=>
+    {
+        Yeelight.findOne({id: req.params.id},(err,bulb)=>{
+            if(!bulb) return res.status(404).send({
+                status: 404,
+                message: 'Bulb not referenced on DB try to search on network'
+            });
+            if(req.body.bright && req.body.bright>0 && req.body.bright<=100){
+                bulb.set_power('on', 'smooth', 30).then(()=>{
+                    return bulb.set_bright(req.body.bright,'smooth',1000).then(()=>{
+                        return res.status(200).send({
+                            status: 200,
+                            message: 'Bulb\'s bright successfully change'
+                        });
+                    }).catch((err)=>{
+                        return err;
+                    });
+                }).catch((err)=>{
+                    return res.status(500).send({
+                        status: 500,
+                        message: 'Internal error: cannot change bulb\'s bright'
+                    });
+                })
+            }else{
+                return res.status(400).send({
+                    status: 400,
+                    message: 'Bad bright value'
+                });
+            }
+        });
+    });
+
+
 module.exports = router;
