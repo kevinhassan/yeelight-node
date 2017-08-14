@@ -147,12 +147,12 @@ router.route('/yeelights/:id/rgb')
                     }).catch((err)=>{
                         return err;
                     });
-                }).catch((err)=>{
+                }).catch(()=>{
                     return res.status(500).send({
                         status: 500,
                         message: 'Internal error: cannot change bulb\'s color'
                     });
-                })
+                });
             }else{
                 return res.status(400).send({
                     status: 400,
@@ -180,18 +180,39 @@ router.route('/yeelights/:id/bright')
                     }).catch((err)=>{
                         return err;
                     });
-                }).catch((err)=>{
+                }).catch(()=>{
                     return res.status(500).send({
                         status: 500,
                         message: 'Internal error: cannot change bulb\'s bright'
                     });
-                })
+                });
             }else{
                 return res.status(400).send({
                     status: 400,
                     message: 'Bad bright value'
                 });
             }
+        });
+    });
+router.route('/yeelights/:id/save_state')
+    .get((req, res)=>
+    {
+        Yeelight.findOne({id: req.params.id},(err,bulb)=>{
+            if(!bulb) return res.status(404).send({
+                status: 404,
+                message: 'Bulb not referenced on DB try to search on network'
+            });
+            bulb.set_default().then(()=>{
+                return res.status(200).send({
+                    status: 200,
+                    message: 'Bulb\'s  state successfully saved'
+                });
+            }).catch(()=>{
+                return res.status(500).send({
+                    status: 500,
+                    message: 'Internal error: cannot save bulb\'s state'
+                });
+            });
         });
     });
 
